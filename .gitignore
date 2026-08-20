@@ -1,0 +1,12 @@
+# Ignore Rust build output everywhere
+**/target/
+
+# Ignore Zig build output everywhere
+**/zig-cache/
+**/zig-out/
+
+# Temporarily ignore specific language folders 👀
+Go*/
+Zig*/
+C*/
+Python*/
