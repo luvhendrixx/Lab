@@ -2,8 +2,6 @@
   <img src="./Assets/Pilot.png" alt="So You Want to Be a Pilot">
 </p>
 
-"Just do it"
-        - The just do it guy
 
 This is not a portfolio, course, or anything particularly organized.
 
