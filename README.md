@@ -3,17 +3,18 @@
 </p>
 
 
-This is not a portfolio, course, or anything particularly organized.
+This is not a portfolio, course, or anything particularly organized
 
-It's just a **lab** foo.
+It's just a **lab** foo
 
-Build, break, read, forget, figure out, and occasionally discover that the compiler💀 was right, repeat.
+Build, break, read, forget, figure out, and occasionally discover that the compiler (sometimes) was right, repeat
 
-No particular finish line.
+No particular...finish line
 
-Just trying to get better at this stuff.
+Just...
 
 ### And you...
 
-"Everyone prefers belief to the exercise of judgement"
-                              - Seneca
+> "Everyone prefers belief to the exercise of judgement"
+
+<p align="right">— Seneca</p>
