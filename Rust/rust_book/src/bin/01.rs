@@ -3,9 +3,10 @@ use std::io::{self, Write};
 
 fn main() {
     println!("Hmm...i'm thinking of a number...between 1-10...");
-    let secret_number = rand::random_range(1..=10); // gives us a random number between the range of 1 TO 10 (inclusive of 10)
+    let mut counter = 0; // make it mutable so we can actually increament
+    let mut secret_number = rand::random_range(1..=10); // gives us a random number between the range of 1 TO 10 (inclusive of 10)
 
-    let choices = ["sure", "yes", "maybe", "affirmative"]; // just to name a few
+    let choices = ["sure", "yes", "maybe", "affirmative", "yea boi"]; // just to name a few
 
     // prompt the user once if they wanna play
     print!("Do you wanna...play ? ");
@@ -24,7 +25,7 @@ fn main() {
         // Calling .as_str() explicitly converts that String into a temporary &str so the types match.
         println!("Alright then..lets play 👀...");
     } else {
-        println!("Ahh...see you when your ready..bye bye :-)");
+        println!("Ahh...see you when your ready i guess..bye bye :-)");
         return; // break the loop if the didn't say no
     }
 
@@ -44,6 +45,7 @@ fn main() {
             Ok(num) => num,
             Err(_) => continue,
         };
+        counter += 1;
 
         print!("You guessed {guess} which is...");
         io::stdout().flush().unwrap();
@@ -61,7 +63,41 @@ fn main() {
             }
             Ordering::Equal => {
                 println!("bingo, you win!!! :-) ");
-                break;
+                println!("Plus...you guessed {counter} times");
+                println!("And hey, since you won...");
+                let user_again_choices = [
+                    // just to name a few
+                    "sure",
+                    "ok",
+                    "alright then",
+                    "aight",
+                    "alright",
+                    "bet",
+                    "roger",
+                ];
+                print!("Wanna play again? ");
+                io::stdout().flush().unwrap();
+
+                // read the users input for the replay question
+                let mut replay_input = String::new();
+                io::stdin()
+                    .read_line(&mut replay_input)
+                    .expect("Failed to read line");
+
+                // parse/clean input..more specifically clean
+                let replay_input = replay_input.trim().to_lowercase();
+
+                if user_again_choices.contains(&replay_input.as_str()) {
+                    // generate a new secet number for the game
+                    secret_number = rand::random_range(1..=10);
+                    counter = 0; // counter resets for the new game
+                    println!("Awesome, still the same...");
+                    println!("I got a number between 1 TO 10, try ang guess it 🐱");
+                    continue;
+                } else {
+                    println!("Ok then, see you next time 😼");
+                    break;
+                }
             }
         }
     }
