@@ -50,5 +50,9 @@ Python/__pycache__
 **/.zig-cache/
 **/zig-out/
 
+# Ignore VS Code workspace data
+.vscode/
+*.code-workspace
+
 
 
