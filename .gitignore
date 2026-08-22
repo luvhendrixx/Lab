@@ -1,12 +1,49 @@
 # Ignore Rust build output everywhere
 **/target/
 
-# Ignore Zig build output everywhere
-**/zig-cache/
-**/zig-out/
-
 # Temporarily ignore specific language folders 👀
 Go*/
-Zig*/
-C*/
-Python*/
+Python/.venv
+Python/README.md
+Python/__pycache__
+
+# Ignore all build and output folders everywhere
+**/build/
+**/bin/
+**/out/
+
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+
