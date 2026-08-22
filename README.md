@@ -15,6 +15,6 @@ Just...
 
 ### And you...
 
-> "Everyone prefers belief to the exercise of judgement"
+> "We suffer more in imagination than in reality"
 
-<p align="right">— Seneca</p>
+<p align="right">— idk</p>
