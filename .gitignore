@@ -46,4 +46,9 @@ Python/__pycache__
 *.out
 *.app
 
+# Ignore Zig build output directories
+**/.zig-cache/
+**/zig-out/
+
+
 
