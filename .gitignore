@@ -12,6 +12,16 @@ Python/__pycache__
 **/bin/
 **/out/
 
+# Object archive
+*.o
+*.a
+
+# default compiler output
+a.out
+
+# for C bin(s)
+hello
+
 
 # Prerequisites
 *.d
