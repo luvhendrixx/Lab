@@ -20,7 +20,7 @@ def verify_access():
         remaining = max_attempts - attempts
 
         if remaining == 1:
-            print("Warning! You have 1 attempt left, please be careful as data lost is irrecoverable\n")
+            print("WARNING! You have 1 attempt left, please be careful as data lost is irrecoverable\n")
         elif remaining > 1:
             print(f"Incorrect. You have {remaining} attempt(s) left.\n")
 
