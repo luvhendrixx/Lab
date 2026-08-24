@@ -64,5 +64,6 @@ hello
 .vscode/
 *.code-workspace
 
-
-
+# Ignore binaries/executables without extensions inside subfolders
+main
+**/main
