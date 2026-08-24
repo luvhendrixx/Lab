@@ -2,7 +2,6 @@
 **/target/
 
 # Temporarily ignore specific language folders 👀
-Go*/
 Python/.venv
 Python/README.md
 Python/__pycache__
