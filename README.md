@@ -15,6 +15,7 @@ Just...
 
 ### And you...
 
-> "We suffer more in imagination than in reality"
+> "What is harder than rock? What is softer than water?
+  Yet rocks are hollowed out by soft water?"
 
 <p align="right">— idk</p>
