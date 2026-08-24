@@ -18,4 +18,4 @@ Just...
 > "What is harder than rock? What is softer than water?
   Yet rocks are hollowed out by soft water?"
 
-<p align="right">— idk</p>
+<p align="right">— Seneca</p>
