@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func main() {
+func runPime() {
 	resp, err := http.Get("https://github.com")
 	if err != nil {
 		fmt.Println("Error making request:", err)

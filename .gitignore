@@ -68,3 +68,4 @@ hello
 # Ignore binaries/executables without extensions inside subfolders
 main
 **/main
+.env
