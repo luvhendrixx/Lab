@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Python -> Browser Stream</title>
+  <style>
+    body { font-family: monospace; background: #0d1117; color: #58a6ff; padding: 20px; }
+    .card { background: #161b22; padding: 20px; border-radius: 8px; max-width: 400px; }
+    #price { font-size: 2rem; color: #3fb950; font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Live BTC Price from Python</h2>
+    <div id="price">Waiting for Python server...</div>
+  </div>
+
+  <script>
+    // Connect directly to your local Python script
+    const ws = new WebSocket('ws://localhost:8765');
+
+    ws.onopen = () => console.log('Connected to Python backend!');
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      document.getElementById('price').innerText = `$${data.price.toFixed(2)}`;
+    };
+  </script>
+</body>
+</html>
