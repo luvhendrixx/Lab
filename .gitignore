@@ -41,7 +41,6 @@ hello
 *.dll
 
 # Fortran module files
-*.mod
 *.smod
 
 # Compiled Static libraries
@@ -68,4 +67,4 @@ hello
 # Ignore binaries/executables without extensions inside subfolders
 main
 **/main
-.env
+*.env
