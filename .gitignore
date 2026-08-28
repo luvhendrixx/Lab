@@ -63,6 +63,5 @@ hello
 # Ignore VS Code workspace data
 .vscode/
 *.code-workspace
-
-
-
+*.env
+dotenv
