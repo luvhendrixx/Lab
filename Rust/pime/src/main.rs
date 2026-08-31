@@ -1,7 +1,6 @@
 use std::time::Instant;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let username = whoami::username().unwrap();
     // start the clock when we ACTUALLY GET THE BYTES
     let start = Instant::now();
 
@@ -38,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if mega_bytes_per_sec < 1.0 {
         println!("Bro...your internet is ASSS CHEEKS 😂🫵")
     } else {
-        println!("Not bad {username}...not bad 🤔");
+        println!("Not bad user...not bad 🤔");
     }
     Ok(())
 }
