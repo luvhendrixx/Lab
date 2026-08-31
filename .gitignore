@@ -71,4 +71,5 @@ main
 *.env
 *.env
 dotenv
-~/Lab/Cplus/gemini
+Cplus/gemini
+C/clock/clock
