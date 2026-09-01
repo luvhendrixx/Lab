@@ -73,3 +73,5 @@ main
 dotenv
 Cplus/gemini
 C/clock/clock
+*json
+*jsonl
