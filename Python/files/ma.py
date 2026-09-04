@@ -1,8 +1,9 @@
-import json
+import getpass
 import os
+from typing import Any
 
 import requests
-from dotenv import load_dotenv # type: ignore
+from dotenv import load_dotenv  # type: ignore
 
 _ = load_dotenv()
 
@@ -11,29 +12,48 @@ API_KEY = os.getenv("NEWS_API")
 # Endpoint options: 'everything' or 'top-headlines'
 url = "https://newsapi.org/v2/everything"
 
-params = {
-    "q": "Apple",  # Search keyword
-    "language": "en",  # ISO-639-1 language code
-    "from": "2026-09-02",
-    "sortBy": "popularity",  # Options: relevancy, popularity, publishedAt
-    "pageSize": 5,  # Max 100 per request
-    "apiKey": API_KEY,  # Pass key via params or headers
-}
+username = getpass.getuser()
 
-response = requests.get(url, params=params)
-data = response.json()
+print(f"Welome back {username}\n")
 
-if response.status_code == 200:
-    for article in data.get("articles", []):
-        print(f"Author: {article['author']}")
-        print(f"Title: {article['title']}")
-        print(f"Source: {article['source']['name']}")
-        print(f"Description: {article['description']}")
-        print(f"URL: {article['url']}\n---")
 
-        with open("news.jsonl", "a") as file:
-            pretty_json = json.dumps(article, indent=4)
+def fetch_articles(query: str, page_size: int = 20) -> list[dict[str, Any]]:
+    # fetch artciles from the API and return them as a list of dicts
+    # Endpoint options: 'everything' or 'top-headlines'
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": query,
+        "language": "en",
+        "sortBy": "publishedAt",  # TODO: do our own sorting later
+        "pageSize": page_size,
+        "apiKey": API_KEY,
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()  # to throw an error handling early just incase instead of silent failing
+    data = response.json()
+    return data.get("articles", [])
 
-            _ = file.write(pretty_json + "\n\n")
-else:
-    print(f"Error {response.status_code}: {data.get('message')}")
+
+def recency_score(published_at: str, half_life_hours: float = 12) -> float:
+
+
+
+
+
+
+
+
+
+
+def main():
+    query = input("What news are you looking for today 👀 ? ")
+
+    page = 20
+
+    result = fetch_articles(query, page)
+
+    print(len(result))
+
+
+if __name__ == "__main__":
+    main()
