@@ -5,7 +5,7 @@
 
 This is not a portfolio, course, or anything particularly organized
 
-It's just a **lab** foo
+It's just a **lab**
 
 Build, break, read, forget, figure out, and occasionally discover that the compiler (sometimes) was right, repeat
 
@@ -15,7 +15,6 @@ Just...
 
 ### And you...
 
-> "What is harder than rock? What is softer than water?
-  Yet rocks are hollowed out by soft water?"
+> "The greatest remedy to anger is delay"
 
 <p align="right">— Seneca</p>
