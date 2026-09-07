@@ -75,3 +75,8 @@ Cplus/gemini
 C/clock/clock
 *json
 *jsonl
+
+# Ignore all SQLite / database binary files
+*.db
+*.sqlite
+*.sqlite3

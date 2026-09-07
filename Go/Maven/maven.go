@@ -1,122 +1,125 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"net/http" // provides tools for building web servers
-	"strconv"  // helps convert strings to numbers
-	"sync"     // used for safe concurrent access to shared data
+	"log"
+	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-// to store users in mem
 type User struct {
 	Name string `json:"name"`
+	ID   int    `json:"id"`
 }
 
-// every...struct tag(.e.g Name is a struct tag cuz its inside the struct) is assigned an int
-var userCache = make(map[int]User)
-var cacheMutex sync.RWMutex // cacheMutex ensures safe read/write access to userCache since multiple req could come in at once
-// starts at 0
-var lastID int
+// helper func that takes the shared DB handle and name to insert to the db
+func createUser(db *sql.DB, name string) (int64, error) {
+	// do the insertion
+	// btw, columns are always enclosed in ()
+	// .e.g (name) column
+	stmt, err := db.Prepare("INSERT INTO users (name) VALUES (?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(name)
+	if err != nil {
+		return 0, err
+	}
+
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return lastID, nil
+}
 
 func main() {
-	mux := http.NewServeMux() // creating the router (only job is to handle requests to their appropriate "rooms")
-	fmt.Println("Server is running on port 8080")
+	// create the router
+	mux := http.NewServeMux()
 
-	// a simple handler to test if the server is running
-	// r *http.Request is info sent from the browser(client) to me(the server) (URL params, headers, JSON body sent by the USER)
-	// w.http.ResponseWriter is OUTGOING DATA..the tool you use to write headers, status codes and text back to the browser(USER)
+	// init the DB once the programme starts
+	database, err := sql.Open("sqlite3", "./maven.db")
+	if err != nil {
+		log.Fatalf("Failed to open DB: %v", err)
+	}
+	defer database.Close()
+
+	// create the table ONCE at startup of the programme as well
+	query := "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"
+
+	if _, err := database.Exec(query); err != nil {
+		log.Fatalf("Failed to create the table: %v", err)
+	}
+
+	// create the handlers (ROOT)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// byte thingy means take the world "hello world" and convett it to raw bytes (the internet speaks in raw bytes so...we gotta convert)
-		w.Write([]byte("hello world\n"))
+		// this looks at the web addr (url) send by the client and grabs the value..
+		// of a specific param named username
+		// .e.g localhost:8080/?username=Alex ...
+		// it'll grab Alex and display Hey there Alex 👋
+		username := r.URL.Query().Get("username")
+		if username == "" {
+			username = "Guest"
+		}
+		// fmt.sprintf creates a formatted string(plain text bts[the string]) instead of printing to stdout
+		// the reason we return plain txt is cuz we typed a plain phrase...("Hey there..")...
+		// without any HTML tags or JSON fmting
+		greeting := fmt.Sprintf("Hey there %s 👋\n", username)
+
+		// write the resp back to the client http stream
+		// this tells the client that the server (me) is sending back plain ordinary text encoded in UTF-8
+		// the "Content-Type" tells the clients browser or so how to handle the response data from the server
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte(greeting))
 	})
 
+	// create the handler (POST) -> creation of users
 	mux.HandleFunc("POST /users", func(w http.ResponseWriter, r *http.Request) {
 		var user User
-		// the below line takes incoming JSON txt from the user's browser and translates it directly to the User struct we created
-		// json.NewDecoder reads and "translates" incoming data on the fly instead of waiting for everything to arrive then start reading and "translating"
-		// .Decode((&user)) tells the Deocder to "read the JSON from the network stream and parse("translate") its fields into the Go struct we created"
+
+		// decodes the 1s and 0s(the body of the req) from the client into JSON...
+		// then appends/adds them to the User struct
 		err := json.NewDecoder(r.Body).Decode((&user))
-		// if the error isn't valid JSON.e.g broken syntax, return a 400 (bad request) error to the client (USER)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			return // exit early
 		}
-		// if the user didn't provide a name..bad request...return it to the USER
+		// if the user didn't provide a name..= bad req so we return (tell them)..
+		// input validation to see if they provided a name
 		if user.Name == "" {
-			http.Error(w, "Name is required", http.StatusBadRequest)
+			http.Error(w, "Hey, you didn't provide a name :-(", http.StatusBadRequest)
 			return
 		}
 
-		// safe MuTEX write
-		// allows for A SINGLE WRITER and 0 READERS
-		cacheMutex.Lock()
-		defer cacheMutex.Unlock()
-		lastID++ // ID strictly goes 1, 2, 3... and never resets
-		userCache[lastID] = user
-
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("User created successfully\n"))
-	})
-
-	mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// Atoi ('ASCII' to interger) converts the id we got from the user to an int (remeber, we mapped struct tags to ints..but users sends strings, so go won't allow it and that's why we have to convert)
-		// this also checks for...weird requests.e.g /users/abc where abc can't be converted to a int which ought to trigger the 400 Bad Request
-		id, err := strconv.Atoi(r.PathValue("id"))
+		// insert into the DB if they did everything right
+		id, err := createUser(database, user.Name)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "Failed to create your user in the DB, try again please", http.StatusInternalServerError)
+			log.Printf("DB error: %v", err)
 			return
 		}
-		// RLock() [read lock] allows for MANY READERS but 0 WRITERS
-		cacheMutex.RLock()
-		defer cacheMutex.RUnlock() // a "sticky" note to auto update the "chalkboard" for readers inside when coming in and going out
-		// userCache[id] gives use back a key(.e.g Name from the struct) and a boolean(True or False)
-		user, ok := userCache[id]
-		if !ok {
-			// fixed this bug where there was StatusFound instead of StatusNotFound (404)
-			http.Error(w, "User not found\n", http.StatusNotFound)
-			return // immediately exit here
-		}
-		// we're telling the client(user's browser) that we're returning data in form of JSON, not HTML or plain text or XML
-		// so the browser can auto-parse and display the JSON structure on the clients side on their browser
+
+		// update the struct with the newly generated ID (gets added/appended to the User struct)
+		user.ID = int(id)
+
+		// send the JSON response back to the client (Marshalling -> pulling data out of the USER STRUCT, parsing it to json and streaming it back to the user)
 		w.Header().Set("Content-Type", "application/json")
-		// j is now a byte slice: []byte(`{"name":"Alice"}`)
-		// marshal takes a Go data structure like struct, map or slice and converts it into a byte slice []byte formatted a JSON txt
-		// .e.g User struct has {Name: "Alice"} json.Marshal turns it into -> `{"name":"Alice"}`
-		j, err := json.Marshal(user)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		// for clean output without the % thingy
-		w.Write(append(j, '\n'))
-
-		/*
-			To save some keystrokes, you could actually write...
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOk)
-			json.NewEncoder(w).Encode(user) <- this convers user directly to JSON and write its to 'w'
-		*/
+		w.WriteHeader(http.StatusCreated) // this must always be called after setting headers BUT before writing the body
+		json.NewEncoder(w).Encode(user)   // targets the stream resp (w) goes to the User struct and encodes/parses it to JSON then streams it back to the client
 	})
 
-	mux.HandleFunc("DELETE /users/{id}", func(w http.ResponseWriter, r *http.Request) {
-		id, err := strconv.Atoi(r.PathValue("id"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		// the _ means this is a throw away value
-		if _, ok := userCache[id]; !ok {
-			http.Error(w, "User not found\n", http.StatusNotFound)
-			return
-		}
-		cacheMutex.Lock()
-		defer cacheMutex.Unlock()
-		delete(userCache, id)
-		w.WriteHeader(http.StatusOK)
-		// 204 (http.StatusNoContent) means the server is sending 0 bytes...so it was odd and i changed it to http.StatusOk (200)
-		w.Write([]byte("User Deleted Successfully\n"))
-	})
-	http.ListenAndServe(":8080", mux)
+	// start the server
+	fmt.Println("Server is running on port 8080")
+	// turns out this is a blocking operation so..it gets added at the very last of this code...
+	// so it doesn't block anything
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
+
 }
