@@ -2,7 +2,7 @@ module gpt
 
 go 1.27.0
 
-require google.golang.org/genai v1.70.0
+require google.golang.org/genai v1.71.0
 
 require (
 	cloud.google.com/go v0.116.0 // indirect
