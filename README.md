@@ -15,6 +15,6 @@ Just...
 
 ### And you...
 
-> "The greatest remedy to anger is delay"
+> "You should keep learning...to the end of your life"
 
 <p align="right">— Seneca</p>
