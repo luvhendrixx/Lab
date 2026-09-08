@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Web App</title>
+</head>
+<body>
+    <h1>Web Dev First Steps</h1>
+    <button id="fetch-btn">Get Greeting</button>
+    <p id="output">Click the button to fetch data...</p>
+
+    <script>
+      document.getElementById('fetch-btn').addEventListener('click', async () => {
+        const response = await fetch('http:localhost:8080/api/greeting');
+        const data = await response.json();
+        document.getElementById('output').innerText = data.message;
+      });
+    </script>
+</body>
+</html>
