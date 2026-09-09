@@ -3,19 +3,21 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// NOTE: this is just a blueprint and doesn't store anything
 type User struct {
 	Name string `json:"name"`
 	ID   int    `json:"id"`
 }
 
-// helper func that takes the shared DB handle and name to insert to the db
 func createUser(db *sql.DB, name string) (int64, error) {
 	// do the insertion
 	// btw, columns are always enclosed in ()
@@ -26,6 +28,7 @@ func createUser(db *sql.DB, name string) (int64, error) {
 	}
 	defer stmt.Close()
 
+	// btw, Exec is ony used for cmds that DON'T return rows like INSERT, UPDATE, DELETE
 	res, err := stmt.Exec(name)
 	if err != nil {
 		return 0, err
@@ -39,11 +42,38 @@ func createUser(db *sql.DB, name string) (int64, error) {
 	return lastID, nil
 }
 
+// db *sql.DB gives this func the ability to open and use the DB
+func getUser(db *sql.DB, id int) (User, error) {
+	// allocates mem for a local User struct
+	// btw, this only lasts only as long as this fuction is doing work...
+	// IMMEDIATELY this func is done...this local struct gets destroyed
+	var user User
+
+	query := "SELECT name, id FROM users WHERE id = ?"
+
+	// scan writes data into that mem addr (the ones with the &)
+	// scan "scans" data from the DB then dumps it on the mem addresses..
+	// &user.Name and its counterpart in our LOCAL struct and returns the local struct data instead
+	err := db.QueryRow(query, id).Scan(&user.Name, &user.ID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// the "not found door"
+			return User{}, fmt.Errorf("User with ID %d not found", id)
+		}
+		// the "db crashed door"
+		return User{}, err
+	}
+	// the "success door" (returning the popluated data back to the caller)
+	return user, nil
+}
+
 func main() {
 	// create the router
 	mux := http.NewServeMux()
 
 	// init the DB once the programme starts
+	// database here will receive the *sql.DB type
 	database, err := sql.Open("sqlite3", "./maven.db")
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
@@ -112,6 +142,29 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated) // this must always be called after setting headers BUT before writing the body
 		json.NewEncoder(w).Encode(user)   // targets the stream resp (w) goes to the User struct and encodes/parses it to JSON then streams it back to the client
+	})
+
+	mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// extract the string value from the URL param
+		idStr := r.PathValue("id")
+
+		// doing the strconv to an int
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid user ID, please try again", http.StatusBadRequest)
+			return
+		}
+
+		// retrieve that ID alongside its value(name) from the DB
+		// database comes from database, err := sql.Open("sqlite3", "./maven.db")...
+		// essentially giving it "powers" to open and read/write to the DB
+		user, err := getUser(database, id)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content=Type", "application/json")
+		json.NewEncoder(w).Encode(user)
 	})
 
 	// start the server
