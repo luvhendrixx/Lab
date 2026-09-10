@@ -13,8 +13,8 @@ No particular...finish line
 
 Just...
 
-### And you...
+### For you...
 
-> "You should keep learning...to the end of your life"
+> "We pity the moth for confusing a lamp for the moon, yet we confuse the world for a screen"
 
 <p align="right">— Seneca</p>
