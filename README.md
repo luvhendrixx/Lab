@@ -17,4 +17,4 @@ Just...
 
 > "We pity the moth for confusing a lamp for the moon, yet we confuse the world for a screen"
 
-<p align="right">— Seneca</p>
+<p align="right">— The_flaming_sea</p>
