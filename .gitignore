@@ -81,3 +81,15 @@ C/clock/clock
 *.sqlite
 *.sqlite3
 /*TMP
+
+# from bruno (api client tester)
+*.env.local
+# Secrets
+.env*
+
+# Dependencies
+node_modules
+
+# OS files
+.DS_Store
+Thumbs.db

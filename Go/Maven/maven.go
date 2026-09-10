@@ -42,6 +42,27 @@ func createUser(db *sql.DB, name string) (int64, error) {
 	return lastID, nil
 }
 
+func deleteUser(db *sql.DB, name string) error {
+	// actually querying AND deleting the user
+	// Exec executes a query without returning any rows...just returns the SQL result from the op
+	res, err := db.Exec("DELETE FROM users WHERE name = ?", name)
+	if err != nil {
+		return err
+	}
+	// checking if the user was ACTUALLY deleted...
+	// basically asking how many rows were affected cuz of the deletion (hence the name)
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	// in no rows were affected...then that user wasn't in the DB
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s not found", name)
+	}
+	// if rows we're affected (success path), then return it
+	return nil
+}
+
 // db *sql.DB gives this func the ability to open and use the DB
 func getUser(db *sql.DB, id int) (User, error) {
 	// allocates mem for a local User struct
@@ -123,7 +144,7 @@ func main() {
 		// if the user didn't provide a name..= bad req so we return (tell them)..
 		// input validation to see if they provided a name
 		if user.Name == "" {
-			http.Error(w, "Hey, you didn't provide a name :-(", http.StatusBadRequest)
+			http.Error(w, "No name provided:-(", http.StatusBadRequest)
 			return
 		}
 
@@ -163,8 +184,37 @@ func main() {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
-		w.Header().Set("Content=Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(user)
+	})
+
+	mux.HandleFunc("DELETE /users/", func(w http.ResponseWriter, r *http.Request) {
+		// create the local copy of the struct (gets deleted when func is done)
+		var user User
+
+		// decode the body
+		err := json.NewDecoder(r.Body).Decode((&user))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return // exit early
+		}
+		// check if a name was provided
+		if user.Name == "" {
+			http.Error(w, "No name provided", http.StatusBadRequest)
+			return
+		}
+		// call the func
+		err = deleteUser(database, user.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		// success (if all went well)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": fmt.Sprintf("User '%s' deleted successfully", user.Name),
+		})
+
 	})
 
 	// start the server
