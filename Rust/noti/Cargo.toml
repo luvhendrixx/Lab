@@ -1,0 +1,8 @@
+[package]
+name = "noti"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+notify-rust = "4.18.0"
+whoami = "2.1.3"
