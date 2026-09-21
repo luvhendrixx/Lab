@@ -93,3 +93,5 @@ node_modules
 # OS files
 .DS_Store
 Thumbs.db
+C/http/client
+C/http/server
