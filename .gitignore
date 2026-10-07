@@ -1,7 +1,7 @@
 # Ignore Rust build output everywhere
 **/target/
 
-# Temporarily ignore specific language folders 👀
+# Temporarily ignore specific language folders
 Python/.venv
 Python/README.md
 Python/__pycache__
@@ -95,3 +95,37 @@ node_modules
 Thumbs.db
 C/http/client
 C/http/server
+
+# Cabal & Build directories
+dist
+dist-*
+cabal-dev
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.project.local
+cabal.project.local~
+
+# Stack directories
+.stack-work/
+
+# Compiled object and interface files
+*.o
+*.hi
+*.hie
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+
+# Profiling and logs
+*.prof
+*.aux
+*.hp
+*.eventlog
+.hpc
+.hsenv
+.HTF/
+.ghc.environment.*
+
+Haskell/bin/
+
