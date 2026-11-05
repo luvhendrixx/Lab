@@ -24,6 +24,10 @@ updates:
     directory: "/Rust/pime"
     schedule:
       interval: "weekly"
+  - package-ecosystem: gitsubmodule
+    directory: "/Odin/hello.odin"
+    schedule:
+      interval: "weekly"
 
   - package-ecosystem: "cargo"
     directory: "/Rust/rust_book"
